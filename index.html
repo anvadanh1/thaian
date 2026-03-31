@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tải Video YouTube</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #fdf6ec;
+      --card: #ffffff;
+      --primary: #e05a2b;
+      --primary-light: #f47c50;
+      --primary-pale: #fde8df;
+      --accent: #2b7be0;
+      --text: #2c2118;
+      --muted: #8a7060;
+      --border: #f0e0d0;
+      --success: #2db87a;
+      --error: #e03030;
+      --shadow: 0 8px 40px rgba(224,90,43,0.10);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(224,90,43,0.07) 0%, transparent 50%),
+        radial-gradient(circle at 90% 80%, rgba(43,123,224,0.06) 0%, transparent 50%);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 620px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 2.4rem;
+      animation: fadeDown 0.6s ease both;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 80px;
+      height: 80px;
+      background: var(--primary);
+      border-radius: 22px;
+      margin-bottom: 1.2rem;
+      box-shadow: 0 6px 24px rgba(224,90,43,0.3);
+      transform: rotate(-3deg);
+      transition: transform 0.3s ease;
+    }
+    .logo:hover { transform: rotate(0deg) scale(1.05); }
+    .logo svg { width: 42px; height: 42px; fill: white; }
+
+    h1 {
+      font-family: 'Baloo 2', cursive;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.1;
+    }
+    h1 span { color: var(--primary); }
+
+    .subtitle {
+      margin-top: 0.5rem;
+      font-size: 1.05rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    /* Card */
+    .card {
+      background: var(--card);
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      border: 1.5px solid var(--border);
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+
+    .label {
+      display: block;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.6rem;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 0.6rem;
+      margin-bottom: 1.4rem;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 0.9rem 1.1rem;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input[type="text"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(224,90,43,0.12);
+    }
+    input[type="text"]::placeholder { color: #cbb8a8; font-weight: 600; }
+
+    .btn-paste {
+      padding: 0.9rem 1rem;
+      background: var(--primary-pale);
+      color: var(--primary);
+      border: 2px solid var(--primary-pale);
+      border-radius: 14px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .btn-paste:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* Quality selector */
+    .quality-section {
+      margin-bottom: 1.4rem;
+    }
+    .quality-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+    }
+    .quality-btn {
+      padding: 0.65rem 0.3rem;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg);
+      color: var(--muted);
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .quality-btn:hover {
+      border-color: var(--primary-light);
+      color: var(--primary);
+    }
+    .quality-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+      box-shadow: 0 3px 12px rgba(224,90,43,0.25);
+    }
+
+    /* Main button */
+    .btn-download {
+      width: 100%;
+      padding: 1.1rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-family: 'Baloo 2', cursive;
+      font-size: 1.25rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 20px rgba(224,90,43,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      letter-spacing: 0.02em;
+    }
+    .btn-download:hover:not(:disabled) {
+      background: var(--primary-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(224,90,43,0.35);
+    }
+    .btn-download:active:not(:disabled) { transform: translateY(0); }
+    .btn-download:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* Status */
+    .status {
+      margin-top: 1.2rem;
+      padding: 1rem 1.2rem;
+      border-radius: 14px;
+      font-size: 0.98rem;
+      font-weight: 700;
+      display: none;
+      align-items: flex-start;
+      gap: 0.7rem;
+      line-height: 1.5;
+    }
+    .status.show { display: flex; animation: fadeUp 0.3s ease both; }
+    .status.loading { background: #fff8f0; color: var(--primary); border: 1.5px solid #fcd5bd; }
+    .status.success { background: #edfaf4; color: #1a7a50; border: 1.5px solid #a8e8c8; }
+    .status.error { background: #fff0f0; color: var(--error); border: 1.5px solid #f8bfbf; }
+    .status-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* Download result links */
+    .result-links {
+      margin-top: 1.2rem;
+      display: none;
+      flex-direction: column;
+      gap: 0.6rem;
+      animation: fadeUp 0.3s ease both;
+    }
+    .result-links.show { display: flex; }
+
+    .dl-link {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.85rem 1.1rem;
+      background: #edfaf4;
+      border: 2px solid #a8e8c8;
+      border-radius: 14px;
+      text-decoration: none;
+      color: #1a7a50;
+      font-weight: 700;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+    .dl-link:hover {
+      background: var(--success);
+      color: white;
+      border-color: var(--success);
+      transform: translateY(-1px);
+    }
+    .dl-link svg { flex-shrink: 0; }
+
+    /* Tips */
+    .tips {
+      margin-top: 2rem;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+    .tips-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.8rem;
+    }
+    .tip {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      padding: 0.7rem 0.9rem;
+      background: white;
+      border-radius: 12px;
+      margin-bottom: 0.5rem;
+      border: 1.5px solid var(--border);
+      font-size: 0.95rem;
+      color: var(--text);
+      font-weight: 600;
+    }
+    .tip-num {
+      background: var(--primary-pale);
+      color: var(--primary);
+      font-family: 'Baloo 2', cursive;
+      font-weight: 800;
+      font-size: 0.85rem;
+      min-width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 2rem;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 600;
+      animation: fadeUp 0.6s 0.3s ease both;
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 20px; height: 20px;
+      border: 3px solid rgba(224,90,43,0.2);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeDown { from { opacity: 0; transform: translateY(-18px); } to { opacity: 1; transform: none; } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/>
+      </svg>
+    </div>
+    <h1>Tải Video <span>YouTube</span></h1>
+    <p class="subtitle">Đơn giản — Không quảng cáo — Miễn phí</p>
+  </div>
+
+  <!-- Main Card -->
+  <div class="card">
+    <label class="label">📋 Dán link video YouTube vào đây:</label>
+    <div class="input-row">
+      <input type="text" id="urlInput" placeholder="https://www.youtube.com/watch?v=..." />
+      <button class="btn-paste" onclick="pasteFromClipboard()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+        Dán
+      </button>
+    </div>
+
+    <div class="quality-section">
+      <label class="label">🎬 Chất lượng video:</label>
+      <div class="quality-grid">
+        <button class="quality-btn" onclick="setQuality('144')">144p<br><small style="font-size:0.75em;opacity:0.8">Nhỏ nhất</small></button>
+        <button class="quality-btn" onclick="setQuality('480')">480p<br><small style="font-size:0.75em;opacity:0.8">Bình thường</small></button>
+        <button class="quality-btn active" onclick="setQuality('720')">720p<br><small style="font-size:0.75em;opacity:0.8">Nét đẹp ✓</small></button>
+        <button class="quality-btn" onclick="setQuality('1080')">1080p<br><small style="font-size:0.75em;opacity:0.8">Siêu nét</small></button>
+      </div>
+    </div>
+
+    <button class="btn-download" id="downloadBtn" onclick="startDownload()">
+      ⬇️ Tải Video Xuống
+    </button>
+
+    <div class="status" id="status">
+      <span class="status-icon" id="statusIcon"></span>
+      <span id="statusText"></span>
+    </div>
+
+    <div class="result-links" id="resultLinks"></div>
+  </div>
+
+  <!-- Tips -->
+  <div class="tips">
+    <div class="tips-title">Hướng dẫn sử dụng</div>
+    <div class="tip"><div class="tip-num">1</div>Mở video YouTube muốn tải → sao chép link trên thanh địa chỉ trình duyệt</div>
+    <div class="tip"><div class="tip-num">2</div>Dán link vào ô trên (nhấn nút "Dán" hoặc Ctrl+V)</div>
+    <div class="tip"><div class="tip-num">3</div>Chọn chất lượng phù hợp, rồi nhấn nút <strong>Tải Video Xuống</strong></div>
+    <div class="tip"><div class="tip-num">4</div>Nhấn vào nút tải màu xanh xuất hiện → chờ trình duyệt lưu file về máy</div>
+  </div>
+
+  <div class="footer">
+    🔒 Trang này không lưu thông tin của bạn &nbsp;·&nbsp; Không có quảng cáo
+  </div>
+</div>
+
+<script>
+  let selectedQuality = '720';
+
+  function setQuality(q) {
+    selectedQuality = q;
+    document.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+
+  async function pasteFromClipboard() {
+    try {
+      const text = await navigator.clipboard.readText();
+      document.getElementById('urlInput').value = text;
+      document.getElementById('urlInput').focus();
+    } catch {
+      document.getElementById('urlInput').focus();
+      document.execCommand('paste');
+    }
+  }
+
+  function showStatus(type, icon, text) {
+    const el = document.getElementById('status');
+    el.className = 'status show ' + type;
+    document.getElementById('statusIcon').textContent = icon;
+    document.getElementById('statusText').innerHTML = text;
+  }
+
+  function showLinks(links) {
+    const container = document.getElementById('resultLinks');
+    container.innerHTML = '';
+    links.forEach(link => {
+      const a = document.createElement('a');
+      a.href = link.url;
+      a.className = 'dl-link';
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.innerHTML = `
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M12 16l-5-5h3V4h4v7h3l-5 5z"/><path d="M5 20h14"/>
+        </svg>
+        ${link.label}
+      `;
+      container.appendChild(a);
+    });
+    container.classList.add('show');
+  }
+
+  function isValidYouTubeUrl(url) {
+    return /(?:youtube\.com\/(?:watch\?.*v=|shorts\/|embed\/)|youtu\.be\/)[\w-]+/.test(url);
+  }
+
+  async function startDownload() {
+    const url = document.getElementById('urlInput').value.trim();
+    const btn = document.getElementById('downloadBtn');
+    const resultLinks = document.getElementById('resultLinks');
+
+    resultLinks.classList.remove('show');
+    resultLinks.innerHTML = '';
+
+    if (!url) {
+      showStatus('error', '⚠️', 'Vui lòng dán link YouTube vào ô bên trên trước!');
+      return;
+    }
+    if (!isValidYouTubeUrl(url)) {
+      showStatus('error', '⚠️', 'Link không hợp lệ. Vui lòng sao chép đúng link YouTube (bắt đầu bằng <b>https://www.youtube.com/...</b>)');
+      return;
+    }
+
+    btn.disabled = true;
+    showStatus('loading', '', '<span class="spinner"></span>&nbsp; Đang xử lý, vui lòng chờ...');
+    document.getElementById('statusIcon').innerHTML = '<div class="spinner"></div>';
+
+    try {
+      // Use cobalt.tools API - free, open source, no ads
+      const response = await fetch('https://api.cobalt.tools/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          url: url,
+          videoQuality: selectedQuality,
+          filenameStyle: 'pretty',
+          downloadMode: 'auto',
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.status === 'error') {
+        throw new Error(data.error?.code || 'Không thể tải video này');
+      }
+
+      if (data.status === 'redirect' || data.status === 'stream') {
+        showStatus('success', '✅', 'Tìm thấy video! Nhấn nút bên dưới để tải về máy:');
+        showLinks([{ url: data.url, label: `📥 Tải Video (${selectedQuality}p) — Nhấn vào đây` }]);
+      } else if (data.status === 'picker') {
+        showStatus('success', '✅', 'Tìm thấy nhiều file! Chọn file muốn tải:');
+        const links = data.picker.map((item, i) => ({
+          url: item.url,
+          label: item.type === 'video' ? `📹 Video ${i + 1}` : `🎵 Audio ${i + 1}`
+        }));
+        if (data.audio) links.push({ url: data.audio, label: '🎵 Chỉ tải âm thanh (MP3)' });
+        showLinks(links);
+      } else {
+        throw new Error('Phản hồi không hợp lệ từ máy chủ');
+      }
+
+    } catch (err) {
+      console.error(err);
+      const msg = err.message || '';
+      if (msg.includes('fetch') || msg.includes('network') || msg.includes('Failed')) {
+        showStatus('error', '❌', 'Không kết nối được máy chủ tải. Vui lòng kiểm tra kết nối Internet và thử lại.');
+      } else if (msg.includes('age') || msg.includes('private') || msg.includes('unavailable')) {
+        showStatus('error', '❌', 'Video này bị giới hạn tuổi hoặc đặt chế độ riêng tư, không thể tải.');
+      } else {
+        showStatus('error', '❌', 'Không tải được video này. Thử lại sau vài phút hoặc thử link khác.<br><small style="opacity:0.7">Lỗi: ' + (msg || 'Không xác định') + '</small>');
+      }
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // Allow Enter key
+  document.getElementById('urlInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') startDownload();
+  });
+</script>
+</body>
+</html>
