@@ -1,445 +1,632 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>YuTube · Xem Video</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <style>
-    :root {
-      --bg: #0a0a0f;
-      --surface: #12121a;
-      --border: #1e1e2e;
-      --accent: #ff3b3b;
-      --accent2: #ff7b00;
-      --text: #f0f0f5;
-      --muted: #6b6b80;
-      --glow: rgba(255,59,59,0.18);
-    }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>YT Down · Tải Video YouTube</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #060608;
+  --card: #0f0f14;
+  --border: #1c1c28;
+  --accent: #00e5ff;
+  --accent2: #7c3aed;
+  --green: #00ff88;
+  --red: #ff4060;
+  --text: #eeeef5;
+  --muted: #55556a;
+  --glow: rgba(0,229,255,0.15);
+}
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-    /* Grain overlay */
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none; z-index: 9999; opacity: 0.4;
-    }
+/* Background grid */
+body::before {
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events:none;
+}
 
-    /* Header */
-    header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 20px 48px;
-      border-bottom: 1px solid var(--border);
-      background: rgba(10,10,15,0.85);
-      backdrop-filter: blur(12px);
-      position: sticky; top: 0; z-index: 100;
-    }
+/* Glow blob */
+body::after {
+  content:'';
+  position:fixed;
+  top:-200px; left:50%;
+  transform:translateX(-50%);
+  width:700px; height:400px;
+  background: radial-gradient(ellipse, rgba(124,58,237,0.12) 0%, transparent 70%);
+  pointer-events:none;
+}
 
-    .logo {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 2rem;
-      letter-spacing: 4px;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
+header {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 48px;
+  border-bottom:1px solid var(--border);
+  background:rgba(6,6,8,0.8);
+  backdrop-filter:blur(12px);
+  position:sticky;top:0;z-index:100;
+}
 
-    .logo span { -webkit-text-fill-color: var(--text); }
+.logo {
+  font-family:'Syne',sans-serif;
+  font-size:1.5rem;
+  font-weight:800;
+  letter-spacing:2px;
+}
+.logo .yt { color: var(--red); }
+.logo .down { color: var(--accent); }
 
-    .tagline {
-      font-size: 0.7rem;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
+.badge {
+  font-size:0.65rem;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:var(--muted);
+  border:1px solid var(--border);
+  padding:4px 10px;
+  border-radius:20px;
+}
 
-    /* Main layout */
-    main {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 48px 24px 80px;
-    }
+main {
+  max-width:780px;
+  margin:0 auto;
+  padding:56px 24px 80px;
+}
 
-    /* Hero text */
-    .hero {
-      text-align: center;
-      margin-bottom: 48px;
-      animation: fadeUp 0.7s ease both;
-    }
+.hero {
+  margin-bottom:40px;
+  animation:fadeUp 0.6s ease both;
+}
 
-    .hero h1 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(3rem, 8vw, 6rem);
-      line-height: 1;
-      letter-spacing: 6px;
-      margin-bottom: 12px;
-    }
+.hero h1 {
+  font-family:'Syne',sans-serif;
+  font-size:clamp(2.2rem,6vw,4rem);
+  font-weight:800;
+  line-height:1.1;
+  margin-bottom:12px;
+}
 
-    .hero h1 em {
-      font-style: normal;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
+.hero h1 span {
+  background:linear-gradient(90deg, var(--accent), var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
 
-    .hero p {
-      color: var(--muted);
-      font-size: 1rem;
-      letter-spacing: 1px;
-    }
+.hero p { color:var(--muted); font-size:0.95rem; }
 
-    /* Input section */
-    .input-section {
-      display: flex; gap: 12px;
-      margin-bottom: 40px;
-      animation: fadeUp 0.7s 0.1s ease both;
-    }
+/* API Key section */
+.key-section {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:20px;
+  margin-bottom:24px;
+  animation:fadeUp 0.6s 0.05s ease both;
+}
 
-    .url-input {
-      flex: 1;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 14px 20px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.95rem;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.25s, box-shadow 0.25s;
-    }
+.key-label {
+  font-size:0.7rem;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:10px;
+  display:flex;align-items:center;gap:8px;
+}
 
-    .url-input::placeholder { color: var(--muted); }
+.key-label::before {
+  content:'';
+  display:inline-block;
+  width:6px;height:6px;
+  border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 8px var(--accent);
+}
 
-    .url-input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--glow);
-    }
+.key-row { display:flex;gap:10px; }
 
-    .btn-load {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border: none;
-      border-radius: 6px;
-      padding: 14px 28px;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.1rem;
-      letter-spacing: 2px;
-      color: #fff;
-      cursor: pointer;
-      transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s;
-      white-space: nowrap;
-    }
+.key-input {
+  flex:1;
+  background:#0a0a10;
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:11px 16px;
+  font-family:'Outfit',sans-serif;
+  font-size:0.85rem;
+  color:var(--accent);
+  letter-spacing:1px;
+  outline:none;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.key-input::placeholder{color:var(--muted);letter-spacing:0}
+.key-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow);}
 
-    .btn-load:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 24px rgba(255,59,59,0.35);
-    }
+.btn-save {
+  background:transparent;
+  border:1px solid var(--accent);
+  border-radius:6px;
+  padding:11px 20px;
+  font-family:'Syne',sans-serif;
+  font-size:0.8rem;
+  letter-spacing:1px;
+  color:var(--accent);
+  cursor:pointer;
+  transition:background 0.2s,color 0.2s;
+  white-space:nowrap;
+}
+.btn-save:hover{background:var(--accent);color:#000;}
 
-    .btn-load:active { transform: translateY(0); opacity: 0.85; }
+.key-status {
+  font-size:0.72rem;
+  margin-top:8px;
+  color:var(--muted);
+  display:flex;align-items:center;gap:6px;
+}
+.key-status.ok{color:var(--green);}
+.key-status.ok::before{content:'✓';}
 
-    /* Video container */
-    .video-wrapper {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 16/9;
-      background: var(--surface);
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-      animation: fadeUp 0.7s 0.2s ease both;
-      transition: box-shadow 0.4s;
-    }
+/* URL Input */
+.search-section {
+  display:flex;gap:10px;
+  margin-bottom:8px;
+  animation:fadeUp 0.6s 0.1s ease both;
+}
 
-    .video-wrapper.active {
-      box-shadow: 0 20px 80px rgba(255,59,59,0.2), 0 0 0 1px var(--accent);
-    }
+.url-input {
+  flex:1;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:14px 20px;
+  font-family:'Outfit',sans-serif;
+  font-size:0.95rem;
+  color:var(--text);
+  outline:none;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.url-input::placeholder{color:var(--muted);}
+.url-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow);}
 
-    .video-wrapper iframe {
-      width: 100%; height: 100%;
-      border: none;
-      display: block;
-    }
+.btn-fetch {
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;
+  border-radius:8px;
+  padding:14px 28px;
+  font-family:'Syne',sans-serif;
+  font-size:1rem;
+  font-weight:700;
+  letter-spacing:1px;
+  color:#000;
+  cursor:pointer;
+  transition:transform 0.2s,box-shadow 0.2s,opacity 0.2s;
+  white-space:nowrap;
+}
+.btn-fetch:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,229,255,0.3);}
+.btn-fetch:active{transform:translateY(0);opacity:0.85;}
+.btn-fetch:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
 
-    /* Placeholder */
-    .placeholder {
-      position: absolute; inset: 0;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 16px;
-      background: radial-gradient(ellipse at center, #1a1a28 0%, #0a0a0f 70%);
-      transition: opacity 0.4s;
-    }
+.error-msg {
+  color:var(--red);
+  font-size:0.8rem;
+  padding:0 4px;
+  display:none;
+  margin-bottom:16px;
+  animation:shake 0.3s ease;
+}
+.error-msg.show{display:block;}
 
-    .placeholder.hidden { opacity: 0; pointer-events: none; }
+/* Loading */
+.loading {
+  display:none;
+  align-items:center;
+  gap:12px;
+  padding:24px;
+  color:var(--muted);
+  font-size:0.9rem;
+  animation:fadeUp 0.3s ease both;
+}
+.loading.show{display:flex;}
 
-    .play-icon {
-      width: 72px; height: 72px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 0 40px var(--glow);
-      animation: pulse 2.5s ease infinite;
-    }
+.spinner {
+  width:22px;height:22px;
+  border:2px solid var(--border);
+  border-top-color:var(--accent);
+  border-radius:50%;
+  animation:spin 0.7s linear infinite;
+}
 
-    .play-icon svg { width: 30px; height: 30px; fill: white; margin-left: 4px; }
+/* Result card */
+.result-card {
+  display:none;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+  animation:fadeUp 0.4s ease both;
+  margin-bottom:24px;
+}
+.result-card.show{display:block;}
 
-    .placeholder p {
-      color: var(--muted);
-      font-size: 0.9rem;
-      letter-spacing: 1px;
-    }
+.video-meta {
+  display:flex;gap:16px;
+  padding:20px;
+  border-bottom:1px solid var(--border);
+}
 
-    /* Quick links */
-    .quick-title {
-      font-family: 'Bebas Neue', sans-serif;
-      letter-spacing: 3px;
-      font-size: 1rem;
-      color: var(--muted);
-      margin: 40px 0 16px;
-      text-transform: uppercase;
-      animation: fadeUp 0.7s 0.3s ease both;
-    }
+.thumb-wrap {
+  position:relative;
+  flex-shrink:0;
+  width:140px;height:80px;
+  border-radius:6px;
+  overflow:hidden;
+  background:#111;
+}
+.thumb-wrap img{width:100%;height:100%;object-fit:cover;}
+.thumb-play {
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.3);
+}
+.thumb-play svg{width:24px;height:24px;fill:white;}
 
-    .quick-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 12px;
-      animation: fadeUp 0.7s 0.35s ease both;
-    }
+.meta-info { flex:1;overflow:hidden; }
+.meta-title {
+  font-family:'Syne',sans-serif;
+  font-size:0.95rem;
+  font-weight:700;
+  line-height:1.4;
+  margin-bottom:8px;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.meta-tags {
+  display:flex;flex-wrap:wrap;gap:6px;
+}
+.tag {
+  font-size:0.65rem;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:3px 8px;
+  color:var(--muted);
+}
 
-    .quick-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 14px 16px;
-      cursor: pointer;
-      transition: border-color 0.2s, transform 0.2s, background 0.2s;
-      display: flex; align-items: center; gap: 12px;
-    }
+/* Formats */
+.formats-title {
+  padding:16px 20px 12px;
+  font-size:0.7rem;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:var(--muted);
+}
 
-    .quick-card:hover {
-      border-color: var(--accent);
-      background: #16161f;
-      transform: translateY(-2px);
-    }
+.formats-list {
+  padding:0 16px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
 
-    .quick-card .thumb {
-      width: 44px; height: 30px;
-      border-radius: 4px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.55rem; font-family: 'Bebas Neue'; letter-spacing: 1px; color: white;
-    }
+.format-row {
+  display:flex;align-items:center;gap:12px;
+  background:#0a0a10;
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:12px 16px;
+  transition:border-color 0.2s;
+}
+.format-row:hover{border-color:rgba(0,229,255,0.3);}
 
-    .quick-card .info { overflow: hidden; }
-    .quick-card .title {
-      font-size: 0.78rem; font-weight: 500;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .quick-card .vid { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+.fmt-badge {
+  font-family:'Syne',sans-serif;
+  font-size:0.75rem;
+  font-weight:700;
+  min-width:48px;
+  text-align:center;
+  padding:4px 8px;
+  border-radius:4px;
+  background:rgba(0,229,255,0.1);
+  color:var(--accent);
+  border:1px solid rgba(0,229,255,0.2);
+}
 
-    /* Error message */
-    .error-msg {
-      color: var(--accent);
-      font-size: 0.82rem;
-      margin-top: -28px;
-      margin-bottom: 16px;
-      padding-left: 4px;
-      display: none;
-      animation: shake 0.3s ease;
-    }
+.fmt-badge.audio {
+  background:rgba(124,58,237,0.1);
+  color:#a78bfa;
+  border-color:rgba(124,58,237,0.2);
+}
 
-    .error-msg.show { display: block; }
+.fmt-info { flex:1; }
+.fmt-label { font-size:0.85rem; font-weight:500; }
+.fmt-size  { font-size:0.72rem; color:var(--muted); margin-top:2px; }
 
-    /* Video info bar */
-    .info-bar {
-      display: none;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 0 0;
-      animation: fadeUp 0.4s ease both;
-    }
+.btn-dl {
+  display:flex;align-items:center;gap:6px;
+  background:linear-gradient(135deg,var(--accent),#0099cc);
+  border:none;border-radius:6px;
+  padding:9px 16px;
+  font-family:'Syne',sans-serif;
+  font-size:0.78rem;
+  font-weight:700;
+  letter-spacing:1px;
+  color:#000;
+  cursor:pointer;
+  text-decoration:none;
+  transition:transform 0.15s,box-shadow 0.15s;
+  white-space:nowrap;
+}
+.btn-dl:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,229,255,0.3);}
+.btn-dl svg{width:14px;height:14px;fill:#000;}
 
-    .info-bar.show { display: flex; }
+.btn-dl.audio-btn {
+  background:linear-gradient(135deg,var(--accent2),#9333ea);
+  color:white;
+}
+.btn-dl.audio-btn svg{fill:white;}
 
-    .info-bar .vid-id {
-      font-size: 0.75rem;
-      color: var(--muted);
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 4px 10px;
-      letter-spacing: 1px;
-    }
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 
-    .info-bar a {
-      font-size: 0.75rem;
-      color: var(--accent);
-      text-decoration: none;
-      letter-spacing: 0.5px;
-      margin-left: auto;
-    }
-
-    .info-bar a:hover { text-decoration: underline; }
-
-    /* Animations */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(22px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 30px var(--glow); transform: scale(1); }
-      50%       { box-shadow: 0 0 60px rgba(255,59,59,0.4); transform: scale(1.06); }
-    }
-
-    @keyframes shake {
-      0%,100% { transform: translateX(0); }
-      25%     { transform: translateX(-6px); }
-      75%     { transform: translateX(6px); }
-    }
-
-    /* Responsive */
-    @media (max-width: 600px) {
-      header { padding: 16px 20px; }
-      .input-section { flex-direction: column; }
-      .quick-grid { grid-template-columns: 1fr 1fr; }
-    }
-  </style>
+@media(max-width:580px){
+  header{padding:14px 18px;}
+  .search-section{flex-direction:column;}
+  .video-meta{flex-direction:column;}
+  .thumb-wrap{width:100%;height:160px;}
+  .format-row{flex-wrap:wrap;}
+}
+</style>
 </head>
 <body>
 
 <header>
-  <div class="logo">YU<span>·</span>TUBE</div>
-  <div class="tagline">Trình phát video</div>
+  <div class="logo"><span class="yt">YT</span><span class="down">·DOWN</span></div>
+  <div class="badge">Powered by RapidAPI</div>
 </header>
 
 <main>
   <div class="hero">
-    <h1>XEM <em>VIDEO</em><br>YOUTUBE</h1>
-    <p>Dán link YouTube bên dưới để phát ngay lập tức</p>
+    <h1>TẢI VIDEO<br><span>YOUTUBE</span></h1>
+    <p>Chọn chất lượng và tải về MP4 hoặc MP3 miễn phí</p>
   </div>
 
-  <div class="input-section">
-    <input
-      class="url-input"
-      id="urlInput"
-      type="text"
-      placeholder="https://www.youtube.com/watch?v=..."
-      autocomplete="off"
-      spellcheck="false"
-    />
-    <button class="btn-load" onclick="loadVideo()">▶ TẢI VIDEO</button>
-  </div>
-  <div class="error-msg" id="errorMsg">⚠ Link không hợp lệ. Vui lòng nhập URL YouTube đúng định dạng.</div>
-
-  <div class="video-wrapper" id="videoWrapper">
-    <div class="placeholder" id="placeholder">
-      <div class="play-icon">
-        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-      </div>
-      <p>Nhập link YouTube để bắt đầu xem</p>
+  <!-- API Key -->
+  <div class="key-section">
+    <div class="key-label">RapidAPI Key</div>
+    <div class="key-row">
+      <input class="key-input" id="apiKey" type="password"
+        placeholder="Nhập RapidAPI Key của bạn..."/>
+      <button class="btn-save" onclick="saveKey()">LƯU KEY</button>
     </div>
-    <iframe id="ytFrame" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+    <div class="key-status" id="keyStatus">Chưa có key — tải về sẽ không hoạt động</div>
   </div>
 
-  <div class="info-bar" id="infoBar">
-    <span class="vid-id" id="vidId"></span>
-    <a id="ytLink" href="#" target="_blank" rel="noopener">↗ Mở trên YouTube</a>
+  <!-- URL -->
+  <div class="search-section">
+    <input class="url-input" id="urlInput" type="text"
+      placeholder="https://www.youtube.com/watch?v=..."
+      autocomplete="off" spellcheck="false"/>
+    <button class="btn-fetch" id="fetchBtn" onclick="fetchVideo()">TÌM VIDEO</button>
+  </div>
+  <div class="error-msg" id="errorMsg"></div>
+
+  <!-- Loading -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <span>Đang lấy thông tin video...</span>
   </div>
 
-  <div class="quick-title">— Thử với video —</div>
-  <div class="quick-grid" id="quickGrid"></div>
+  <!-- Result -->
+  <div class="result-card" id="resultCard">
+    <div class="video-meta">
+      <div class="thumb-wrap">
+        <img id="resThumbnail" src="" alt="thumbnail"/>
+        <div class="thumb-play">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+      </div>
+      <div class="meta-info">
+        <div class="meta-title" id="resTitle">—</div>
+        <div class="meta-tags" id="resTags"></div>
+      </div>
+    </div>
+    <div class="formats-title">— Chọn định dạng tải xuống —</div>
+    <div class="formats-list" id="formatsList"></div>
+  </div>
 </main>
 
 <script>
-  const samples = [
-    { title: 'Lofi Hip Hop Radio', id: 'jfKfPfyJRdk' },
-    { title: 'Big Buck Bunny', id: 'aqz-KE-bpKQ' },
-    { title: 'Rick Astley – Never Gonna Give You Up', id: 'dQw4w9WgXcQ' },
-    { title: 'Nature Sounds 4K', id: 'eKFTSSKCzWA' },
-    { title: 'NASA: Earth from Space', id: 'DPTBnhO3kXA' },
-    { title: 'Blender Demo Reel', id: 'UXqq0ZvbOnk' },
-  ];
+  const API_HOST = 'youtube-media-downloader.p.rapidapi.com';
 
-  // Render quick cards
-  const grid = document.getElementById('quickGrid');
-  samples.forEach(s => {
-    const card = document.createElement('div');
-    card.className = 'quick-card';
-    card.innerHTML = `
-      <div class="thumb">▶</div>
-      <div class="info">
-        <div class="title">${s.title}</div>
-        <div class="vid">${s.id}</div>
-      </div>`;
-    card.onclick = () => embedVideo(s.id);
-    grid.appendChild(card);
-  });
+  // Load saved key
+  const saved = localStorage.getItem('yt_api_key');
+  if (saved) {
+    document.getElementById('apiKey').value = saved;
+    updateKeyStatus(saved);
+  }
 
-  function extractVideoId(url) {
+  function saveKey() {
+    const k = document.getElementById('apiKey').value.trim();
+    if (!k) return;
+    localStorage.setItem('yt_api_key', k);
+    updateKeyStatus(k);
+  }
+
+  function updateKeyStatus(k) {
+    const el = document.getElementById('keyStatus');
+    el.textContent = 'Key đã lưu: ' + k.slice(0,8) + '••••••••';
+    el.className = 'key-status ok';
+  }
+
+  function getKey() {
+    return (document.getElementById('apiKey').value.trim()) ||
+           (localStorage.getItem('yt_api_key') || '');
+  }
+
+  function extractId(url) {
     url = url.trim();
-    // youtu.be/ID
     let m = url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
     if (m) return m[1];
-    // youtube.com/watch?v=ID
     m = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
     if (m) return m[1];
-    // youtube.com/embed/ID
-    m = url.match(/\/embed\/([a-zA-Z0-9_-]{11})/);
-    if (m) return m[1];
-    // youtube.com/shorts/ID
     m = url.match(/\/shorts\/([a-zA-Z0-9_-]{11})/);
     if (m) return m[1];
-    // plain 11-char ID
     if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
     return null;
   }
 
-  function loadVideo() {
-    const val = document.getElementById('urlInput').value;
-    const id = extractVideoId(val);
-    const err = document.getElementById('errorMsg');
-    if (!id) {
-      err.classList.add('show');
-      setTimeout(() => err.classList.remove('show'), 3000);
-      return;
+  function showError(msg) {
+    const e = document.getElementById('errorMsg');
+    e.textContent = '⚠ ' + msg;
+    e.classList.add('show');
+    setTimeout(() => e.classList.remove('show'), 4000);
+  }
+
+  function fmtSize(bytes) {
+    if (!bytes) return '';
+    if (bytes > 1e9) return (bytes/1e9).toFixed(1) + ' GB';
+    if (bytes > 1e6) return (bytes/1e6).toFixed(1) + ' MB';
+    return (bytes/1e3).toFixed(0) + ' KB';
+  }
+
+  async function fetchVideo() {
+    const key = getKey();
+    if (!key) { showError('Vui lòng nhập RapidAPI Key trước!'); return; }
+
+    const url = document.getElementById('urlInput').value;
+    const vid = extractId(url);
+    if (!vid) { showError('Link YouTube không hợp lệ.'); return; }
+
+    // UI state
+    document.getElementById('loading').classList.add('show');
+    document.getElementById('resultCard').classList.remove('show');
+    document.getElementById('fetchBtn').disabled = true;
+    document.getElementById('errorMsg').classList.remove('show');
+
+    try {
+      const res = await fetch(
+        `https://${API_HOST}/v2/video/details?videoId=${vid}`,
+        {
+          headers: {
+            'X-RapidAPI-Key': key,
+            'X-RapidAPI-Host': API_HOST
+          }
+        }
+      );
+
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`API lỗi ${res.status}: ${txt.slice(0,120)}`);
+      }
+
+      const data = await res.json();
+      renderResult(data, vid);
+
+    } catch (err) {
+      showError(err.message || 'Không thể kết nối API.');
+    } finally {
+      document.getElementById('loading').classList.remove('show');
+      document.getElementById('fetchBtn').disabled = false;
     }
-    err.classList.remove('show');
-    embedVideo(id);
   }
 
-  function embedVideo(id) {
-    const frame = document.getElementById('ytFrame');
-    const wrapper = document.getElementById('videoWrapper');
-    const placeholder = document.getElementById('placeholder');
-    const infoBar = document.getElementById('infoBar');
-    const vidId = document.getElementById('vidId');
-    const ytLink = document.getElementById('ytLink');
+  function renderResult(data, vid) {
+    // Title & thumbnail
+    const title = data.title || data.name || 'Video YouTube';
+    document.getElementById('resTitle').textContent = title;
 
-    frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
-    placeholder.classList.add('hidden');
-    wrapper.classList.add('active');
-    infoBar.classList.add('show');
-    vidId.textContent = `ID: ${id}`;
-    ytLink.href = `https://www.youtube.com/watch?v=${id}`;
+    const thumb = data.thumbnails?.find(t => t.url)?.url ||
+                  `https://img.youtube.com/vi/${vid}/hqdefault.jpg`;
+    document.getElementById('resThumbnail').src = thumb;
 
-    document.getElementById('urlInput').value = `https://www.youtube.com/watch?v=${id}`;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Tags
+    const tags = document.getElementById('resTags');
+    tags.innerHTML = '';
+    const meta = [];
+    if (data.duration)    meta.push(data.duration);
+    if (data.viewCount)   meta.push(Number(data.viewCount).toLocaleString() + ' views');
+    if (data.channelName) meta.push(data.channelName);
+    meta.forEach(t => {
+      const s = document.createElement('span');
+      s.className = 'tag'; s.textContent = t;
+      tags.appendChild(s);
+    });
+
+    // Formats
+    const list = document.getElementById('formatsList');
+    list.innerHTML = '';
+
+    const videos = data.videos || data.formats?.filter(f => f.hasVideo) || [];
+    const audios = data.audios || data.formats?.filter(f => !f.hasVideo) || [];
+
+    // Video formats
+    videos.slice(0, 6).forEach(f => {
+      const quality = f.quality || f.qualityLabel || f.format_note || '?';
+      const ext     = f.extension || f.ext || 'mp4';
+      const size    = fmtSize(f.size || f.filesize || 0);
+      const dlUrl   = f.url || f.download_url || f.downloadUrl || '#';
+
+      list.innerHTML += `
+        <div class="format-row">
+          <div class="fmt-badge">${quality}</div>
+          <div class="fmt-info">
+            <div class="fmt-label">Video · ${ext.toUpperCase()}</div>
+            ${size ? `<div class="fmt-size">${size}</div>` : ''}
+          </div>
+          <a class="btn-dl" href="${dlUrl}" target="_blank" download>
+            <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5m14-9h-4V3H9v6H5l7 7 7-7z"/></svg>
+            TẢI
+          </a>
+        </div>`;
+    });
+
+    // Audio formats
+    audios.slice(0, 3).forEach(f => {
+      const ext  = f.extension || f.ext || 'mp3';
+      const size = fmtSize(f.size || f.filesize || 0);
+      const dlUrl = f.url || f.download_url || f.downloadUrl || '#';
+      const kbps  = f.audioSampleRate ? Math.round(f.audioSampleRate/1000)+'kbps' : 'Audio';
+
+      list.innerHTML += `
+        <div class="format-row">
+          <div class="fmt-badge audio">♫</div>
+          <div class="fmt-info">
+            <div class="fmt-label">${kbps} · ${ext.toUpperCase()}</div>
+            ${size ? `<div class="fmt-size">${size}</div>` : ''}
+          </div>
+          <a class="btn-dl audio-btn" href="${dlUrl}" target="_blank" download>
+            <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5m14-9h-4V3H9v6H5l7 7 7-7z"/></svg>
+            MP3
+          </a>
+        </div>`;
+    });
+
+    if (list.innerHTML === '') {
+      list.innerHTML = '<p style="color:var(--muted);font-size:0.85rem;padding:8px 4px">Không tìm thấy định dạng tải. Thử video khác.</p>';
+    }
+
+    document.getElementById('resultCard').classList.add('show');
   }
 
-  // Enter key support
+  // Enter key
   document.getElementById('urlInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') loadVideo();
+    if (e.key === 'Enter') fetchVideo();
+  });
+  document.getElementById('apiKey').addEventListener('keydown', e => {
+    if (e.key === 'Enter') saveKey();
   });
 </script>
 </body>
