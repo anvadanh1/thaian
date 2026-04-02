@@ -1,44 +1,446 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Downloader Pro</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>YuTube · Xem Video</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --border: #1e1e2e;
+      --accent: #ff3b3b;
+      --accent2: #ff7b00;
+      --text: #f0f0f5;
+      --muted: #6b6b80;
+      --glow: rgba(255,59,59,0.18);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9999; opacity: 0.4;
+    }
+
+    /* Header */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 48px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(12px);
+      position: sticky; top: 0; z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .logo span { -webkit-text-fill-color: var(--text); }
+
+    .tagline {
+      font-size: 0.7rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* Main layout */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* Hero text */
+    .hero {
+      text-align: center;
+      margin-bottom: 48px;
+      animation: fadeUp 0.7s ease both;
+    }
+
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 8vw, 6rem);
+      line-height: 1;
+      letter-spacing: 6px;
+      margin-bottom: 12px;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1rem;
+      letter-spacing: 1px;
+    }
+
+    /* Input section */
+    .input-section {
+      display: flex; gap: 12px;
+      margin-bottom: 40px;
+      animation: fadeUp 0.7s 0.1s ease both;
+    }
+
+    .url-input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .url-input::placeholder { color: var(--muted); }
+
+    .url-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--glow);
+    }
+
+    .btn-load {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      border-radius: 6px;
+      padding: 14px 28px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-load:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(255,59,59,0.35);
+    }
+
+    .btn-load:active { transform: translateY(0); opacity: 0.85; }
+
+    /* Video container */
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: var(--surface);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      animation: fadeUp 0.7s 0.2s ease both;
+      transition: box-shadow 0.4s;
+    }
+
+    .video-wrapper.active {
+      box-shadow: 0 20px 80px rgba(255,59,59,0.2), 0 0 0 1px var(--accent);
+    }
+
+    .video-wrapper iframe {
+      width: 100%; height: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* Placeholder */
+    .placeholder {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 16px;
+      background: radial-gradient(ellipse at center, #1a1a28 0%, #0a0a0f 70%);
+      transition: opacity 0.4s;
+    }
+
+    .placeholder.hidden { opacity: 0; pointer-events: none; }
+
+    .play-icon {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 40px var(--glow);
+      animation: pulse 2.5s ease infinite;
+    }
+
+    .play-icon svg { width: 30px; height: 30px; fill: white; margin-left: 4px; }
+
+    .placeholder p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+    }
+
+    /* Quick links */
+    .quick-title {
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: 3px;
+      font-size: 1rem;
+      color: var(--muted);
+      margin: 40px 0 16px;
+      text-transform: uppercase;
+      animation: fadeUp 0.7s 0.3s ease both;
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      animation: fadeUp 0.7s 0.35s ease both;
+    }
+
+    .quick-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.2s, background 0.2s;
+      display: flex; align-items: center; gap: 12px;
+    }
+
+    .quick-card:hover {
+      border-color: var(--accent);
+      background: #16161f;
+      transform: translateY(-2px);
+    }
+
+    .quick-card .thumb {
+      width: 44px; height: 30px;
+      border-radius: 4px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.55rem; font-family: 'Bebas Neue'; letter-spacing: 1px; color: white;
+    }
+
+    .quick-card .info { overflow: hidden; }
+    .quick-card .title {
+      font-size: 0.78rem; font-weight: 500;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .quick-card .vid { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+
+    /* Error message */
+    .error-msg {
+      color: var(--accent);
+      font-size: 0.82rem;
+      margin-top: -28px;
+      margin-bottom: 16px;
+      padding-left: 4px;
+      display: none;
+      animation: shake 0.3s ease;
+    }
+
+    .error-msg.show { display: block; }
+
+    /* Video info bar */
+    .info-bar {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 0 0;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .info-bar.show { display: flex; }
+
+    .info-bar .vid-id {
+      font-size: 0.75rem;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 4px 10px;
+      letter-spacing: 1px;
+    }
+
+    .info-bar a {
+      font-size: 0.75rem;
+      color: var(--accent);
+      text-decoration: none;
+      letter-spacing: 0.5px;
+      margin-left: auto;
+    }
+
+    .info-bar a:hover { text-decoration: underline; }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 30px var(--glow); transform: scale(1); }
+      50%       { box-shadow: 0 0 60px rgba(255,59,59,0.4); transform: scale(1.06); }
+    }
+
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25%     { transform: translateX(-6px); }
+      75%     { transform: translateX(6px); }
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      header { padding: 16px 20px; }
+      .input-section { flex-direction: column; }
+      .quick-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>📥 YouTube Downloader</h1>
-        <p class="subtitle">Tải video chất lượng cao miễn phí</p>
+<header>
+  <div class="logo">YU<span>·</span>TUBE</div>
+  <div class="tagline">Trình phát video</div>
+</header>
 
-        <div class="input-group">
-            <input type="text" id="videoUrl" placeholder="Dán link YouTube vào đây...">
-            <button onclick="fetchVideoData()">🔍 Tìm Video</button>
-        </div>
+<main>
+  <div class="hero">
+    <h1>XEM <em>VIDEO</em><br>YOUTUBE</h1>
+    <p>Dán link YouTube bên dưới để phát ngay lập tức</p>
+  </div>
 
-        <div id="loading" class="hidden">⏳ Đang xử lý, vui lòng chờ...</div>
-        <div id="error" class="hidden error-msg"></div>
+  <div class="input-section">
+    <input
+      class="url-input"
+      id="urlInput"
+      type="text"
+      placeholder="https://www.youtube.com/watch?v=..."
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <button class="btn-load" onclick="loadVideo()">▶ TẢI VIDEO</button>
+  </div>
+  <div class="error-msg" id="errorMsg">⚠ Link không hợp lệ. Vui lòng nhập URL YouTube đúng định dạng.</div>
 
-        <div id="result" class="hidden">
-            <div class="video-card">
-                <img id="thumb" src="" alt="Thumbnail">
-                <div class="video-details">
-                    <h3 id="title">Tiêu đề video...</h3>
-                    <p id="channel">Kênh: ...</p>
-                    <p id="duration">Thời lượng: ...</p>
-                </div>
-            </div>
-
-            <div class="download-section">
-                <h4>📥 Chọn định dạng tải:</h4>
-                <div id="downloadList" class="download-list">
-                    <!-- Nút tải sẽ được tạo ở đây -->
-                </div>
-            </div>
-        </div>
+  <div class="video-wrapper" id="videoWrapper">
+    <div class="placeholder" id="placeholder">
+      <div class="play-icon">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+      <p>Nhập link YouTube để bắt đầu xem</p>
     </div>
+    <iframe id="ytFrame" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+  </div>
 
-    <script src="script.js"></script>
+  <div class="info-bar" id="infoBar">
+    <span class="vid-id" id="vidId"></span>
+    <a id="ytLink" href="#" target="_blank" rel="noopener">↗ Mở trên YouTube</a>
+  </div>
+
+  <div class="quick-title">— Thử với video —</div>
+  <div class="quick-grid" id="quickGrid"></div>
+</main>
+
+<script>
+  const samples = [
+    { title: 'Lofi Hip Hop Radio', id: 'jfKfPfyJRdk' },
+    { title: 'Big Buck Bunny', id: 'aqz-KE-bpKQ' },
+    { title: 'Rick Astley – Never Gonna Give You Up', id: 'dQw4w9WgXcQ' },
+    { title: 'Nature Sounds 4K', id: 'eKFTSSKCzWA' },
+    { title: 'NASA: Earth from Space', id: 'DPTBnhO3kXA' },
+    { title: 'Blender Demo Reel', id: 'UXqq0ZvbOnk' },
+  ];
+
+  // Render quick cards
+  const grid = document.getElementById('quickGrid');
+  samples.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'quick-card';
+    card.innerHTML = `
+      <div class="thumb">▶</div>
+      <div class="info">
+        <div class="title">${s.title}</div>
+        <div class="vid">${s.id}</div>
+      </div>`;
+    card.onclick = () => embedVideo(s.id);
+    grid.appendChild(card);
+  });
+
+  function extractVideoId(url) {
+    url = url.trim();
+    // youtu.be/ID
+    let m = url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
+    if (m) return m[1];
+    // youtube.com/watch?v=ID
+    m = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
+    if (m) return m[1];
+    // youtube.com/embed/ID
+    m = url.match(/\/embed\/([a-zA-Z0-9_-]{11})/);
+    if (m) return m[1];
+    // youtube.com/shorts/ID
+    m = url.match(/\/shorts\/([a-zA-Z0-9_-]{11})/);
+    if (m) return m[1];
+    // plain 11-char ID
+    if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
+    return null;
+  }
+
+  function loadVideo() {
+    const val = document.getElementById('urlInput').value;
+    const id = extractVideoId(val);
+    const err = document.getElementById('errorMsg');
+    if (!id) {
+      err.classList.add('show');
+      setTimeout(() => err.classList.remove('show'), 3000);
+      return;
+    }
+    err.classList.remove('show');
+    embedVideo(id);
+  }
+
+  function embedVideo(id) {
+    const frame = document.getElementById('ytFrame');
+    const wrapper = document.getElementById('videoWrapper');
+    const placeholder = document.getElementById('placeholder');
+    const infoBar = document.getElementById('infoBar');
+    const vidId = document.getElementById('vidId');
+    const ytLink = document.getElementById('ytLink');
+
+    frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+    placeholder.classList.add('hidden');
+    wrapper.classList.add('active');
+    infoBar.classList.add('show');
+    vidId.textContent = `ID: ${id}`;
+    ytLink.href = `https://www.youtube.com/watch?v=${id}`;
+
+    document.getElementById('urlInput').value = `https://www.youtube.com/watch?v=${id}`;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Enter key support
+  document.getElementById('urlInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') loadVideo();
+  });
+</script>
 </body>
 </html>
